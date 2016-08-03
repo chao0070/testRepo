@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ParkingLot.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Appdynamics</a> &gt; <a href="index.source.html" class="el_package">com.appdynamics.engg</a> &gt; <span class="el_source">ParkingLot.java</span></div><h1>ParkingLot.java</h1><pre class="source lang-java linenums">package com.appdynamics.engg;
+
+import java.util.ArrayList;
+
+/**
+ * Created by mohitagarwal on 02/08/16.
+ */
+
+
+public class ParkingLot {
+    int fullSize, comapctSize, handyCapSize;
+    int curFull, curComp, curHandy;
+
+    Car[] carlist;
+
+<span class="fc" id="L16">    ParkingLot(int f, int c, int h){</span>
+<span class="fc" id="L17">        this.fullSize = f;</span>
+<span class="fc" id="L18">        this.comapctSize= c;</span>
+<span class="fc" id="L19">        this.handyCapSize= h;</span>
+<span class="fc" id="L20">        carlist = new Car[f+c+h];</span>
+<span class="fc" id="L21">    }</span>
+
+    public int getFirstNull(){
+<span class="pc bpc" id="L24" title="1 of 2 branches missed.">        for(int i = 0; i &lt; fullSize+comapctSize+handyCapSize;i++){</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">            if(carlist[i] == null)</span>
+<span class="fc" id="L26">                return i;</span>
+        }
+
+<span class="nc" id="L29">        return 0;</span>
+    }
+
+    public int getTS(){
+
+<span class="fc" id="L34">        return (int)System.currentTimeMillis()%1000;</span>
+    }
+
+    public Receipt checkin(Car car, boolean handicapPermit) {
+        Receipt r;
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (handicapPermit) {</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">            if (this.curHandy &lt; handyCapSize) {</span>
+<span class="fc" id="L41">                curHandy++;</span>
+<span class="fc" id="L42">                int k = getFirstNull();</span>
+<span class="fc" id="L43">                r = new Receipt(k, 2, getTS());</span>
+<span class="fc" id="L44">                carlist[k] = car;</span>
+<span class="fc" id="L45">                return r;</span>
+            }
+        }
+<span class="pc bpc" id="L48" title="1 of 3 branches missed.">        switch(car.type){</span>
+            case COMPACT:
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">                if (comapctSize &gt; curComp) {</span>
+<span class="fc" id="L51">                    curComp++;</span>
+<span class="fc" id="L52">                    int k = getFirstNull();</span>
+<span class="fc" id="L53">                    r = new Receipt(k, 1, getTS());</span>
+<span class="fc" id="L54">                    carlist[k] = car;</span>
+<span class="fc" id="L55">                    return r;</span>
+                }
+                break;
+            case FULL_SIZE:
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">                if (fullSize &gt; curFull) {</span>
+<span class="fc" id="L60">                    curFull++;</span>
+<span class="fc" id="L61">                    int k = getFirstNull();</span>
+<span class="fc" id="L62">                    r = new Receipt(k, 0, getTS());</span>
+<span class="fc" id="L63">                    carlist[k] = car;</span>
+<span class="fc" id="L64">                    return r;</span>
+                }
+                break;
+        }
+
+
+
+
+<span class="nc" id="L72">        return null;</span>
+
+    }
+
+
+    public Car checkout(Receipt receipt) {
+<span class="pc bpc" id="L78" title="3 of 4 branches missed.">        if(receipt.id &lt; 0 &amp;&amp; receipt.id &gt;= fullSize+comapctSize+handyCapSize )</span>
+<span class="nc" id="L79">            return null;</span>
+
+<span class="pc bpc" id="L81" title="3 of 4 branches missed.">        switch (receipt.slotType){</span>
+            case 0:
+<span class="nc" id="L83">                curFull--;</span>
+<span class="nc" id="L84">                break;</span>
+            case 1:
+<span class="fc" id="L86">                curComp--;</span>
+<span class="fc" id="L87">                break;</span>
+            case 2:
+<span class="nc" id="L89">                curHandy--;</span>
+            default:
+<span class="nc" id="L91">                return null;</span>
+        }
+
+<span class="fc" id="L94">        Car c = carlist[receipt.id];</span>
+<span class="fc" id="L95">        carlist[receipt.id] = null;</span>
+
+<span class="fc" id="L97">        return c;</span>
+
+    }
+
+    public static void main(String args[]){
+<span class="nc" id="L102">        ParkingLot p = new ParkingLot(10,20,30);</span>
+<span class="nc" id="L103">        Car car = new Car(&quot;A1234&quot;,Car.CarType.FULL_SIZE);</span>
+<span class="nc" id="L104">        Car car2 = new Car(&quot;A12e34&quot;,Car.CarType.COMPACT);</span>
+<span class="nc" id="L105">        Car car3= new Car(&quot;A123r4r&quot;,Car.CarType.FULL_SIZE);</span>
+<span class="nc" id="L106">        Car car4 = new Car(&quot;A12t34&quot;,Car.CarType.COMPACT);</span>
+<span class="nc" id="L107">        Car car5 = new Car(&quot;A12tg34&quot;,Car.CarType.FULL_SIZE);</span>
+
+<span class="nc" id="L109">        Receipt r = p.checkin(car,true);</span>
+<span class="nc" id="L110">        System.out.println(r.id);</span>
+<span class="nc" id="L111">        System.out.println(&quot;ftasf&quot;);</span>
+<span class="nc" id="L112">        System.out.println(p.carlist[0].registration);</span>
+//        Car c1 = p.checkout(r);
+//        System.out.println(c1.registration);
+
+
+<span class="nc" id="L117">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>
